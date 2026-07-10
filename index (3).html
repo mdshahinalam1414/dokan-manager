@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>দোকান ম্যানেজার | Shop Manager</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen">
+  <form class="login-box" id="loginForm">
+    <h1 data-i18n="appName">দোকান ম্যানেজার</h1>
+    <p data-i18n="loginSub">চালিয়ে যেতে ইউজারনেম ও পাসওয়ার্ড দিন</p>
+    <input type="text" id="usernameInput" data-i18n-ph="username" placeholder="ইউজারনেম" required autocomplete="username">
+    <input type="password" id="passwordInput" data-i18n-ph="password" placeholder="পাসওয়ার্ড" required autocomplete="current-password">
+    <button type="submit" data-i18n="login">লগইন</button>
+    <div class="login-error" id="loginError"></div>
+  </form>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+  <div class="topbar">
+    <h1 data-i18n="appName">দোকান ম্যানেজার</h1>
+    <div class="actions">
+      <span id="welcomeName" style="font-size:13px;opacity:0.9;"></span>
+      <button id="langToggle" onclick="toggleLang()">EN</button>
+      <button onclick="logout()" data-i18n="logout">লগআউট</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <button id="nav-dashboard" class="active" onclick="switchTab('dashboard')" data-i18n="nav_dashboard">ড্যাশবোর্ড</button>
+      <button id="nav-capital" onclick="switchTab('capital')" data-i18n="nav_capital">মূলধন</button>
+      <button id="nav-income_expense" onclick="switchTab('income_expense')" data-i18n="nav_income_expense">ইনকাম/এক্সপেন্স</button>
+      <button id="nav-shareholders" onclick="switchTab('shareholders')" data-i18n="nav_shareholders">শেয়ারহোল্ডার</button>
+      <button id="nav-inventory" onclick="switchTab('inventory')" data-i18n="nav_inventory">ইনভেন্টরি</button>
+      <button id="nav-sales" onclick="switchTab('sales')" data-i18n="nav_sales">বিক্রয় / ভাউচার</button>
+      <button id="nav-rp" onclick="switchTab('rp')" data-i18n="nav_rp">দেনাদার-পাওনাদার</button>
+      <button id="nav-parties" onclick="switchTab('parties')" data-i18n="nav_parties">কাস্টমার/সাপ্লায়ার</button>
+      <button id="nav-reports" onclick="switchTab('reports')" data-i18n="nav_reports">রিপোর্ট</button>
+      <button id="nav-users" onclick="switchTab('users')" data-i18n="nav_users">স্টাফ/ইউজার</button>
+      <button id="nav-settings" onclick="switchTab('settings')" data-i18n="nav_settings">সেটিংস</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="tab-panel active" id="tab-dashboard">
+        <h2 class="section-title" data-i18n="nav_dashboard">ড্যাশবোর্ড</h2>
+        <div id="lowStockBanner"></div>
+        <div class="cards" id="dashboardCards"></div>
+      </div>
+
+      <!-- CAPITAL -->
+      <div class="tab-panel" id="tab-capital">
+        <h2 class="section-title" data-i18n="nav_capital">মূলধন</h2>
+        <form id="capitalForm" class="form-row">
+          <div class="field"><label data-i18n="type">ধরণ</label>
+            <select name="type" required>
+              <option value="Initial" data-i18n="capital_initial">প্রাথমিক মূলধন</option>
+              <option value="New" data-i18n="capital_new">নতুন মূলধন</option>
+              <option value="Withdrawal" data-i18n="capital_withdrawal">উত্তোলন</option>
+            </select>
+          </div>
+          <div class="field"><label data-i18n="amount">পরিমাণ</label><input name="amount" type="number" step="0.01" required></div>
+          <div class="field"><label data-i18n="method">পদ্ধতি</label>
+            <select name="method" required><option value="Cash" data-i18n="cash_opt">ক্যাশ</option><option value="Bank" data-i18n="bank_opt">ব্যাংক</option></select>
+          </div>
+          <div class="field"><label data-i18n="note">নোট</label><input name="note" type="text"></div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="date">তারিখ</th><th data-i18n="type">ধরণ</th><th data-i18n="amount">পরিমাণ</th><th data-i18n="method">পদ্ধতি</th><th data-i18n="note">নোট</th></tr></thead>
+          <tbody id="capitalTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- INCOME / EXPENSE -->
+      <div class="tab-panel" id="tab-income_expense">
+        <h2 class="section-title" data-i18n="nav_income_expense">ইনকাম/এক্সপেন্স</h2>
+        <form id="ieForm" class="form-row">
+          <div class="field"><label data-i18n="type">ধরণ</label>
+            <select name="type" required><option value="Income" data-i18n="income_opt">ইনকাম</option><option value="Expense" data-i18n="expense_opt">এক্সপেন্স</option></select>
+          </div>
+          <div class="field"><label data-i18n="category">ক্যাটাগরি</label><input name="category" type="text" required></div>
+          <div class="field"><label data-i18n="amount">পরিমাণ</label><input name="amount" type="number" step="0.01" required></div>
+          <div class="field"><label data-i18n="method">পদ্ধতি</label>
+            <select name="method" required><option value="Cash" data-i18n="cash_opt">ক্যাশ</option><option value="Bank" data-i18n="bank_opt">ব্যাংক</option></select>
+          </div>
+          <div class="field"><label data-i18n="note">নোট</label><input name="note" type="text"></div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="date">তারিখ</th><th data-i18n="type">ধরণ</th><th data-i18n="category">ক্যাটাগরি</th><th data-i18n="amount">পরিমাণ</th><th data-i18n="method">পদ্ধতি</th><th data-i18n="note">নোট</th></tr></thead>
+          <tbody id="ieTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- SHAREHOLDERS -->
+      <div class="tab-panel" id="tab-shareholders">
+        <h2 class="section-title" data-i18n="nav_shareholders">শেয়ারহোল্ডার</h2>
+        <form id="shareholderForm" class="form-row">
+          <div class="field"><label data-i18n="name">নাম</label><input name="name" type="text" required></div>
+          <div class="field"><label data-i18n="phone">ফোন</label><input name="phone" type="text"></div>
+          <div class="field"><label data-i18n="sharePercent">শেয়ার %</label><input name="sharePercent" type="number" step="0.01"></div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="name">নাম</th><th data-i18n="phone">ফোন</th><th data-i18n="sharePercent">শেয়ার %</th><th data-i18n="date">তারিখ</th></tr></thead>
+          <tbody id="shareholderTableBody"></tbody>
+        </table></div>
+
+        <h2 class="section-title" style="margin-top:30px;" data-i18n="paySettle">পেমেন্ট/পরিশোধ</h2>
+        <form id="shPaymentForm" class="form-row">
+          <div class="field"><label data-i18n="name">নাম</label><select name="shareholderName" required></select></div>
+          <div class="field"><label data-i18n="month">মাস</label><input name="month" type="month" required></div>
+          <div class="field"><label data-i18n="amount">পরিমাণ</label><input name="amount" type="number" step="0.01" required></div>
+          <div class="field"><label data-i18n="method">পদ্ধতি</label>
+            <select name="method" required><option value="Cash" data-i18n="cash_opt">ক্যাশ</option><option value="Bank" data-i18n="bank_opt">ব্যাংক</option></select>
+          </div>
+          <div class="field"><label data-i18n="note">নোট</label><input name="note" type="text"></div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="date">তারিখ</th><th data-i18n="name">নাম</th><th data-i18n="month">মাস</th><th data-i18n="amount">পরিমাণ</th><th data-i18n="method">পদ্ধতি</th><th data-i18n="note">নোট</th></tr></thead>
+          <tbody id="shPaymentTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- INVENTORY -->
+      <div class="tab-panel" id="tab-inventory">
+        <h2 class="section-title" data-i18n="nav_inventory">ইনভেন্টরি</h2>
+
+        <div id="addProductBlock">
+          <h3 data-i18n="addProduct">নতুন প্রোডাক্ট</h3>
+          <form id="productForm" class="form-row">
+            <div class="field"><label data-i18n="productName">প্রোডাক্টের নাম</label><input name="name" type="text" required></div>
+            <div class="field"><label data-i18n="category">ক্যাটাগরি</label><input name="category" type="text"></div>
+            <div class="field"><label data-i18n="purchasePrice">ক্রয়মূল্য</label><input name="purchasePrice" type="number" step="0.01" required></div>
+            <div class="field"><label data-i18n="salePrice">বিক্রয়মূল্য</label><input name="salePrice" type="number" step="0.01" required></div>
+            <div class="field"><label data-i18n="lowStockThreshold">লো-স্টক থ্রেশহোল্ড</label><input name="lowStockThreshold" type="number" step="1" value="5"></div>
+            <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+          </form>
+        </div>
+
+        <div id="stockPurchaseBlock">
+          <h3 data-i18n="stockPurchase">স্টক ক্রয়</h3>
+          <form id="stockPurchaseForm" class="form-row">
+            <div class="field"><label data-i18n="product">প্রোডাক্ট</label><select name="productId" required></select></div>
+            <div class="field"><label data-i18n="qty">পরিমাণ</label><input name="qty" type="number" step="1" required></div>
+            <div class="field"><label data-i18n="purchasePrice">ক্রয়মূল্য (প্রতি ইউনিট)</label><input name="unitCost" type="number" step="0.01"></div>
+            <div class="field"><label data-i18n="supplierName">সাপ্লায়ারের নাম</label><input name="supplierName" type="text"></div>
+            <div class="field"><label data-i18n="paidAmount">পরিশোধিত পরিমাণ</label><input name="paidAmount" type="number" step="0.01"></div>
+            <div class="field"><label data-i18n="method">পদ্ধতি</label>
+              <select name="method" required><option value="Cash" data-i18n="cash_opt">ক্যাশ</option><option value="Bank" data-i18n="bank_opt">ব্যাংক</option></select>
+            </div>
+            <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+          </form>
+        </div>
+
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="productName">প্রোডাক্টের নাম</th><th data-i18n="category">ক্যাটাগরি</th><th data-i18n="purchasePrice">ক্রয়মূল্য</th><th data-i18n="salePrice">বিক্রয়মূল্য</th><th data-i18n="stock">স্টক</th><th data-i18n="lowStockThreshold">লো-স্টক থ্রেশহোল্ড</th></tr></thead>
+          <tbody id="inventoryTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- SALES -->
+      <div class="tab-panel" id="tab-sales">
+        <h2 class="section-title" data-i18n="nav_sales">বিক্রয় / ভাউচার</h2>
+
+        <form id="saleItemAdd" class="add-item-row" onsubmit="return false;">
+          <div class="field"><label data-i18n="product">প্রোডাক্ট</label><select name="productId"></select></div>
+          <div class="field"><label data-i18n="qty">পরিমাণ</label><input name="qty" type="number" step="1" value="1"></div>
+          <div class="field"><label data-i18n="amount">একক মূল্য</label><input name="unitPrice" type="number" step="0.01" placeholder="auto"></div>
+          <button type="button" id="addSaleItemBtn" class="btn secondary" data-i18n="addItem">আইটেম যোগ</button>
+        </form>
+
+        <div class="table-wrap" style="margin-bottom:12px;"><table>
+          <thead><tr><th data-i18n="product">প্রোডাক্ট</th><th data-i18n="qty">পরিমাণ</th><th data-i18n="amount">একক মূল্য</th><th data-i18n="total">মোট</th><th></th></tr></thead>
+          <tbody id="saleItemsBody"></tbody>
+        </table></div>
+
+        <form id="saleForm" class="form-row">
+          <div class="field"><label data-i18n="customerName">কাস্টমারের নাম</label><input name="customerName" type="text"></div>
+          <div class="field"><label data-i18n="customerPhone">কাস্টমারের ফোন</label><input name="customerPhone" type="text"></div>
+          <div class="field"><label data-i18n="discount">ডিসকাউন্ট</label><input name="discount" type="number" step="0.01" value="0"></div>
+          <div class="field"><label data-i18n="vat">ভ্যাট/ট্যাক্স %</label><input name="vatPercent" type="number" step="0.01" value="0"></div>
+          <div class="field"><label data-i18n="paidCash">ক্যাশে পরিশোধ</label><input name="paidCash" type="number" step="0.01" value="0"></div>
+          <div class="field"><label data-i18n="paidBank">ব্যাংকে পরিশোধ</label><input name="paidBank" type="number" step="0.01" value="0"></div>
+          <div class="field"><label data-i18n="note">নোট</label><input name="note" type="text"></div>
+          <button class="btn" type="submit" data-i18n="createSale">বিক্রয় সম্পন্ন করুন</button>
+        </form>
+        <p>
+          <b data-i18n="subtotal">সাব-টোটাল</b>: <span id="saleSubtotalDisplay">৳ 0</span> &nbsp;|&nbsp;
+          <b data-i18n="vat">ভ্যাট/ট্যাক্স %</b>: <span id="saleVatAmountDisplay">৳ 0</span> &nbsp;|&nbsp;
+          <b data-i18n="total">মোট</b>: <span id="saleTotalDisplay">৳ 0</span>
+        </p>
+
+        <form id="searchInvoiceForm" class="form-row" style="margin-top:26px;">
+          <div class="field"><label data-i18n="searchInvoice">ভাউচার নং দিয়ে খুঁজুন</label><input name="invoiceNo" type="text" placeholder="INV-00001"></div>
+          <button class="btn secondary" type="submit" data-i18n="printVoucher">ভাউচার প্রিন্ট</button>
+        </form>
+
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="invoiceNo">ভাউচার নং</th><th data-i18n="date">তারিখ</th><th data-i18n="customerName">কাস্টমারের নাম</th><th data-i18n="total">মোট</th><th data-i18n="paidAmount">পরিশোধিত পরিমাণ</th><th data-i18n="due">বাকি</th><th data-i18n="action">একশন</th></tr></thead>
+          <tbody id="salesTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- RECEIVABLE / PAYABLE -->
+      <div class="tab-panel" id="tab-rp">
+        <h2 class="section-title" data-i18n="nav_rp">দেনাদার-পাওনাদার</h2>
+        <form id="rpForm" class="form-row">
+          <div class="field"><label data-i18n="partyName">পার্টির নাম</label><input name="partyName" type="text" required></div>
+          <div class="field"><label data-i18n="type">ধরণ</label>
+            <select name="type" required><option value="Receivable" data-i18n="receivable_opt">পাওনা (দেনাদার)</option><option value="Payable" data-i18n="payable_opt">দেনা (পাওনাদার)</option></select>
+          </div>
+          <div class="field"><label data-i18n="amount">পরিমাণ</label><input name="amount" type="number" step="0.01" required></div>
+          <div class="field"><label data-i18n="note">নোট</label><input name="note" type="text"></div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="date">তারিখ</th><th data-i18n="type">ধরণ</th><th data-i18n="partyName">পার্টির নাম</th><th data-i18n="amount">পরিমাণ</th><th data-i18n="paidAmount">পরিশোধিত পরিমাণ</th><th data-i18n="due">বাকি</th><th data-i18n="action">একশন</th></tr></thead>
+          <tbody id="rpTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- PARTIES -->
+      <div class="tab-panel" id="tab-parties">
+        <h2 class="section-title" data-i18n="nav_parties">কাস্টমার/সাপ্লায়ার</h2>
+        <form id="partyForm" class="form-row">
+          <div class="field"><label data-i18n="name">নাম</label><input name="name" type="text" required></div>
+          <div class="field"><label data-i18n="phone">ফোন</label><input name="phone" type="text"></div>
+          <div class="field"><label data-i18n="partyType">ধরণ</label>
+            <select name="type" required><option value="Customer" data-i18n="customer_opt">কাস্টমার</option><option value="Supplier" data-i18n="supplier_opt">সাপ্লায়ার</option></select>
+          </div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap" style="margin-bottom:20px;"><table>
+          <thead><tr><th data-i18n="name">নাম</th><th data-i18n="phone">ফোন</th><th data-i18n="partyType">ধরণ</th><th data-i18n="action">একশন</th></tr></thead>
+          <tbody id="partiesTableBody"></tbody>
+        </table></div>
+        <div id="partyHistoryBox" style="display:none;background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;"></div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="tab-panel" id="tab-reports">
+        <h2 class="section-title" data-i18n="nav_reports">রিপোর্ট</h2>
+        <form id="reportForm" class="form-row">
+          <div class="field"><label data-i18n="fromDate">শুরুর তারিখ</label><input name="fromDate" type="date"></div>
+          <div class="field"><label data-i18n="toDate">শেষ তারিখ</label><input name="toDate" type="date"></div>
+          <button class="btn" type="submit" data-i18n="generate">রিপোর্ট দেখুন</button>
+          <button class="btn secondary" type="button" onclick="printReport()" data-i18n="print">প্রিন্ট</button>
+        </form>
+
+        <h3 data-i18n="monthlyTrend">মাসিক ট্রেন্ড (ইনকাম/এক্সপেন্স/লাভ)</h3>
+        <div id="monthlyChart" style="margin-bottom:24px;"></div>
+
+        <div id="reportPrintArea">
+          <h3 id="reportShopName"></h3>
+          <div class="shop-sub" id="reportShopSub"></div>
+          <div class="shop-sub" id="reportRangeLabel"></div>
+          <div class="cards" id="reportSummaryCards"></div>
+
+          <h3 data-i18n="incomeByCategory">খাত অনুযায়ী ইনকাম</h3>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="category">ক্যাটাগরি</th><th data-i18n="amount">পরিমাণ</th></tr></thead><tbody id="reportIncomeCatBody"></tbody></table></div>
+
+          <h3 data-i18n="expenseByCategory">খাত অনুযায়ী এক্সপেন্স</h3>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="category">ক্যাটাগরি</th><th data-i18n="amount">পরিমাণ</th></tr></thead><tbody id="reportExpenseCatBody"></tbody></table></div>
+
+          <h3 data-i18n="transactionList">বিস্তারিত লেনদেন</h3>
+          <div class="table-wrap"><table><thead><tr><th data-i18n="date">তারিখ</th><th data-i18n="type">ধরণ</th><th data-i18n="category">ক্যাটাগরি</th><th data-i18n="amount">পরিমাণ</th><th data-i18n="method">পদ্ধতি</th><th data-i18n="note">নোট</th></tr></thead><tbody id="reportTxBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="tab-panel" id="tab-users">
+        <h2 class="section-title" data-i18n="nav_users">স্টাফ/ইউজার</h2>
+        <h3 data-i18n="addUser">নতুন ইউজার যোগ</h3>
+        <form id="userForm" class="form-row">
+          <div class="field"><label data-i18n="username">ইউজারনেম</label><input name="username" type="text" required></div>
+          <div class="field"><label data-i18n="password">পাসওয়ার্ড</label><input name="password" type="text" required></div>
+          <div class="field"><label data-i18n="fullName">পূর্ণ নাম</label><input name="name" type="text"></div>
+          <div class="field"><label data-i18n="role">রোল</label>
+            <select name="role" required><option value="Staff" data-i18n="staff_opt">স্টাফ (Staff)</option><option value="Owner" data-i18n="owner_opt">মালিক (Owner)</option></select>
+          </div>
+          <button class="btn" type="submit" data-i18n="add">যোগ করুন</button>
+        </form>
+        <div class="table-wrap"><table>
+          <thead><tr><th data-i18n="username">ইউজারনেম</th><th data-i18n="fullName">পূর্ণ নাম</th><th data-i18n="role">রোল</th></tr></thead>
+          <tbody id="usersTableBody"></tbody>
+        </table></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="tab-panel" id="tab-settings">
+        <h2 class="section-title" data-i18n="nav_settings">সেটিংস</h2>
+        <form id="settingsForm" class="form-row">
+          <div class="field"><label data-i18n="shopName">দোকানের নাম</label><input name="ShopName" type="text"></div>
+          <div class="field"><label data-i18n="address">ঠিকানা</label><input name="Address" type="text"></div>
+          <div class="field"><label data-i18n="phone">ফোন</label><input name="Phone" type="text"></div>
+          <button class="btn" type="submit" data-i18n="save">সেভ করুন</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- VOUCHER MODAL -->
+<div id="voucherModal">
+  <div class="voucher-box">
+    <div id="voucherPrintArea"></div>
+    <div class="voucher-actions">
+      <button class="btn" onclick="printVoucherNow()" data-i18n="print">প্রিন্ট</button>
+      <button class="btn secondary" onclick="closeVoucher()" data-i18n="close">বন্ধ</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
